@@ -1,3 +1,5 @@
+// app/components/shared/Menu.tsx
+
 import React from 'react'
 import ModeToggle from '../header/mode-toggle'
 import { Button } from '@/components/ui/button'
@@ -6,7 +8,7 @@ import { EllipsisVertical, ShoppingCart } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import UserButton from '../header/user-button'
 
-function Menu() {
+export default async function Menu() {
   return (
     <div className='flex justify-end gap-3'>
       <nav className='hidden md:flex w-full max-w-xs gap-1'>
@@ -39,5 +41,3 @@ function Menu() {
     </div>
   )
 }
-
-export default Menu
