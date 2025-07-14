@@ -13,13 +13,7 @@ export const metadata: Metadata = {
   title: 'Sign In'
 }
 
-async function SignInPage({ searchParams }: { searchParams: { callbackUrl?: string } }) {
-  const callbackUrl = searchParams.callbackUrl || '/'
-  const session = await auth()
-
-  if (session) {
-    return redirect(callbackUrl)
-  }
+async function SignInPage() {
 
   return (
     <div className='w-full max-w-md mx-auto'>
