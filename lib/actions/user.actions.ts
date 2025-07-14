@@ -7,6 +7,7 @@ import { hashSync } from "bcrypt-ts-edge"
 import { prisma } from "@/db/prisma"
 import { ZodError } from "zod"
 import { formatError } from "../utils"
+import { redirect } from "next/navigation"
 // Sign in the user with credentials 
 
 export async function signInWithCredentials(prevState: unknown, formData: FormData) {
@@ -25,7 +26,10 @@ export async function signInWithCredentials(prevState: unknown, formData: FormDa
     if (res?.error) {
       return { success: false, message: res.error }
     }
+    const callbackUrl = formData.get('callbackUrl')?.toString() || '/'
+    redirect(callbackUrl)
 
+    // This won't be reached because redirect throws
     return { success: true, message: 'Sign in successfully' }
   } catch (error) {
     if (isRedirectError(error)) {
