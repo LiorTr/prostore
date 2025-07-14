@@ -7,30 +7,26 @@ import { hashSync } from "bcrypt-ts-edge"
 import { prisma } from "@/db/prisma"
 import { ZodError } from "zod"
 import { formatError } from "../utils"
-import { redirect } from "next/navigation"
+// Sign in the user with credentials 
 
-// Sign in the user with credentials
 export async function signInWithCredentials(prevState: unknown, formData: FormData) {
   try {
     const user = signInFormSchema.parse({
       email: formData.get('email'),
-      password: formData.get('password'),
+      password: formData.get('password')
     })
-
-    const callbackUrl = (formData.get('callbackUrl') as string) || '/'
 
     const res = await signIn('credentials', {
       redirect: false,
       email: user.email,
-      password: user.password,
+      password: user.password
     })
 
     if (res?.error) {
       return { success: false, message: res.error }
     }
 
-    // Redirect the user after successful sign in
-    redirect(callbackUrl)
+    return { success: true, message: 'Sign in successfully' }
   } catch (error) {
     if (isRedirectError(error)) {
       throw error
@@ -38,8 +34,8 @@ export async function signInWithCredentials(prevState: unknown, formData: FormDa
     return { success: false, message: 'Invalid email or password' }
   }
 }
-
 // Sign user out
+
 export async function signOutUser() {
   await signOut()
 }
@@ -53,8 +49,8 @@ export async function signUpUser(prev: unknown, formData: FormData) {
       password: formData.get('password'),
       confirmPassword: formData.get('confirmPassword'),
     })
-
     const plainPassword = user.password
+
     user.password = hashSync(user.password, 10)
 
     await prisma.user.create({
@@ -65,19 +61,14 @@ export async function signUpUser(prev: unknown, formData: FormData) {
       },
     })
 
-    // Sign in the user immediately after successful registration
     await signIn('credentials', {
-      redirect: false,
       email: user.email,
       password: plainPassword,
     })
 
-    // Redirect to home or another page after sign up and sign in
-    redirect('/')
+    return { success: true, message: 'User registered successfully' }
   } catch (error) {
-    if (isRedirectError(error)) {
-      throw error
-    }
+    if (isRedirectError(error)) throw error
 
     if (error instanceof ZodError) {
       console.error('Zod validation error:', error.flatten())
