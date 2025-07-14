@@ -6,8 +6,6 @@ import React from 'react'
 import Logo from '@/public/images/logo.svg'
 import { APP_NAME } from '@/lib/constants'
 import CredentialsSigninForm from './credentials-signin-form'
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
   title: 'Sign In'
