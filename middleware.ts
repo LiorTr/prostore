@@ -1,42 +1,25 @@
-import { getToken } from 'next-auth/jwt'
-import { NextRequest, NextResponse } from 'next/server'
-
-const secret = process.env.NEXTAUTH_SECRET
+// middleware.ts
+import { auth } from '@/auth' // assuming your NextAuth config is in auth.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret })
+  const session = await auth()
 
   const isAuthPage =
     req.nextUrl.pathname === '/sign-in' || req.nextUrl.pathname === '/sign-up'
 
-  let res = NextResponse.next()
-
-  // Ensure sessionCartId exists for all visitors
-  const sessionCartId = req.cookies.get('sessionCartId')
-  if (!sessionCartId) {
-    const newCartId = globalThis.crypto.randomUUID()
-    res = NextResponse.next()
-    res.cookies.set('sessionCartId', newCartId, {
-      path: '/',
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-    })
-  }
-
-  // Redirect unauthenticated users away from protected pages
-  if (!token && !isAuthPage) {
+  if (!session && !isAuthPage) {
     return NextResponse.redirect(new URL('/sign-in', req.url))
   }
 
-  // Redirect authenticated users away from auth pages
-  if (token && isAuthPage) {
+  if (session && isAuthPage) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
-  return res
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/((?!api|_next|favicon.ico|static|.well-known).*)'],
+  matcher: ['/((?!api|_next|static|favicon.ico).*)'],
 }
