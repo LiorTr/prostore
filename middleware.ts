@@ -1,25 +1,19 @@
 // middleware.ts
-import { auth } from '@/auth' // assuming your NextAuth config is in auth.ts
+import { auth } from '@/auth-lite'
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
 
-export async function middleware(req: NextRequest) {
-  const session = await auth()
+export default auth((req) => {
+  const url = req.nextUrl
 
-  const isAuthPage =
-    req.nextUrl.pathname === '/sign-in' || req.nextUrl.pathname === '/sign-up'
+  const isAuthPage = url.pathname === '/sign-in' || url.pathname === '/sign-up'
 
-  if (!session && !isAuthPage) {
+  if (!req.auth && !isAuthPage) {
     return NextResponse.redirect(new URL('/sign-in', req.url))
   }
 
-  if (session && isAuthPage) {
+  if (req.auth && isAuthPage) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
-  return NextResponse.next()
-}
-
-export const config = {
-  matcher: ['/((?!api|_next|static|favicon.ico).*)'],
-}
+  // Optionally set sessionCartId manually here if needed
+})
