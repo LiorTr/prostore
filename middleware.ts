@@ -1,4 +1,3 @@
-// middleware.ts
 import { getToken } from 'next-auth/jwt'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -10,12 +9,13 @@ export async function middleware(req: NextRequest) {
   const isAuthPage =
     req.nextUrl.pathname === '/sign-in' || req.nextUrl.pathname === '/sign-up'
 
-  const res = NextResponse.next()
+  let res = NextResponse.next()
 
   // Ensure sessionCartId exists for all visitors
   const sessionCartId = req.cookies.get('sessionCartId')
   if (!sessionCartId) {
-    const newCartId = crypto.randomUUID()
+    const newCartId = globalThis.crypto.randomUUID()
+    res = NextResponse.next()
     res.cookies.set('sessionCartId', newCartId, {
       path: '/',
       httpOnly: true,
@@ -24,10 +24,12 @@ export async function middleware(req: NextRequest) {
     })
   }
 
+  // Redirect unauthenticated users away from protected pages
   if (!token && !isAuthPage) {
     return NextResponse.redirect(new URL('/sign-in', req.url))
   }
 
+  // Redirect authenticated users away from auth pages
   if (token && isAuthPage) {
     return NextResponse.redirect(new URL('/', req.url))
   }
@@ -36,5 +38,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next|favicon.ico|static).*)'],
+  matcher: ['/((?!api|_next|favicon.ico|static|.well-known).*)'],
 }
