@@ -84,4 +84,5 @@ function AddToCart({ cart, item }: { cart?: Cart, item: CartItem }) {
   )
 }
 
+
 export default AddToCart
