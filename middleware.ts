@@ -1,32 +1,42 @@
-// middleware.ts
 import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';  // <-- add this import
 
-// Optional: Read secret from env (must be same as in next-auth config)
 const secret = process.env.NEXTAUTH_SECRET;
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret });
 
   const isAuthPage =
-    req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/register';
+    req.nextUrl.pathname === '/sign-in' || req.nextUrl.pathname === '/sign-up';
 
+  // Session cart Id coolie setup
+  const sessionCartId = req.cookies.get('sessionCartId');
+  const response = NextResponse.next();
+
+  if (!sessionCartId) {
+    const newSessionCartId = uuidv4();
+    response.cookies.set({
+      name: 'sessionCartId',
+      value: newSessionCartId,
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: true,
+    });
+  }
+
+  // auth redirections
   if (!token && !isAuthPage) {
-
-    // Redirect unauthenticated users to login
-    return NextResponse.redirect(new URL('/login', req.url));
+    return NextResponse.redirect(new URL('/sign-in', req.url));
   }
 
   if (token && isAuthPage) {
-
-    // Redirect authenticated users away from login/register
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
-// Middleware matcher: applies to all routes except static, API, etc.
 export const config = {
   matcher: ['/((?!api|_next|favicon.ico|static).*)'],
 };

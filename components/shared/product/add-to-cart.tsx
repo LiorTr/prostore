@@ -10,7 +10,7 @@ import { Plus, Minus, Loader } from 'lucide-react'
 
 function AddToCart({ cart, item }: { cart?: Cart, item: CartItem }) {
   const router = useRouter()
-  const [isPanding, startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition()
 
   const handleAddToCart = async () => {
     startTransition(async () => {
@@ -56,7 +56,7 @@ function AddToCart({ cart, item }: { cart?: Cart, item: CartItem }) {
   return existItem ? (
     <div>
       <Button type='button' variant='outline' onClick={handleRemoveFromCart}>
-        {isPanding ? (
+        {isPending ? (
           <Loader className='w-4 h-4 animate-spin' />
         ) : (
           <Minus className='h-4 w-4' />
@@ -65,7 +65,7 @@ function AddToCart({ cart, item }: { cart?: Cart, item: CartItem }) {
       </Button>
       <span className="px-2">{existItem.qty}</span>
       <Button type='button' variant='outline' onClick={handleAddToCart}>
-        {isPanding ? (
+        {isPending ? (
           <Loader className='w-4 h-4 animate-spin' />
         ) : (
           <Plus className='h-4 w-4' />
@@ -75,7 +75,7 @@ function AddToCart({ cart, item }: { cart?: Cart, item: CartItem }) {
   ) : (
 
     <Button className='w-full' type='button' onClick={handleAddToCart}>
-      {isPanding ? (
+      {isPending ? (
         <Loader className='w-4 h-4 animate-spin' />
       ) : (
         <Plus />
